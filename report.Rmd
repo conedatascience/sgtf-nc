@@ -1,0 +1,70 @@
+---
+title: "Rapid Impact Analysis of B 1.1.7 Variant on the Spread of SARS-CoV-2 in North Carolina"
+author: Michael DeWitt
+bibliography: references.bib
+date: 31 January, 2021
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa-numeric-superscript-brackets.csl
+header-includes:
+   - \usepackage{float}
+output:
+    pdf_document
+---
+
+```{r setup, echo = FALSE, cache = FALSE, include = FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r load-data}
+
+```
+
+```{r effects}
+
+```
+
+For correspondence: michael.dewitt@conehealth.com
+
+## Abstract
+
+**Background:** Individual level data 
+
+**Method:** We explored 
+
+**Results:** We found 
+
+**Conclusions:** Population level surveillance data supports 
+
+# Method
+
+## Data
+
+This analysis considered effective reproduction number data generated for the state of North Carolina using the @epinow2 R package following the methods specified by @rtwebsite.
+Data on S-gene target failure (SGTF) observed in the United Kingdom and made available in the analysis @davies2020 were used in order to estimate proportion of anticipated B1.1.7 variant circulating.
+
+
+## Statistical analysis
+
+
+# Results
+
+
+
+```{r scatter, echo=FALSE, fig.width=10, fig.height=10, fig.cap = ""}
+
+```
+
+
+
+```{r effects-tab, results = "asis"} 
+
+```
+
+# Discussion
+
+
+# References
+
+<div id = 'refs'></div>
+
+
