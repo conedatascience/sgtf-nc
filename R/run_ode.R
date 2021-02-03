@@ -1,5 +1,24 @@
-
-run_ode <- function(R_eff = 1, gamma_in=1/10, delta_in = 1/6, s_in, e_in, i_in,r_in){
+#' Run Stochastic SEIR Model + Vaccinations with Variant Effect
+#'
+#'@param R_eff a double, >0, the effective reproduction number
+#'@param delta_in a double, the
+#'@param gamma_in
+#'
+run_ode <- function(R_eff = 1,
+                    delta_in = 1/6,
+                    gamma_in=1/10,
+                    s_in=1000,
+                    e_in=2,
+                    i_in=1,
+                    r_in=0,
+                    r_vax_in=0,
+                    pop = s_in+e_in + i_in+ r_in+ r_vax,
+                    tranmission_increase=1,
+                    vax_rate_in=0,
+                    start_date = "2021-01-23",
+                    horizon = 150,
+                    VE = .95){
+  require(data.table)
   odin_model <- odin::odin({
     ## Core equations for transitions between compartments:
     update(S[]) <- max(S[i] - n_SE[i] - n_vax_removed,0)
@@ -12,7 +31,7 @@ run_ode <- function(R_eff = 1, gamma_in=1/10, delta_in = 1/6, s_in, e_in, i_in,r
     p_SE[] <- 1 - exp(-beta * I[i] / N[i]*transmission_multiplier)
     p_EI <- 1 - exp(-delta)
     p_IR <- 1 - exp(-gamma)
-    n_vax_removed <- rbinom(vax_rate, .95)
+    n_vax_removed <- rbinom(vax_rate, VE)
     ## Draws from binomial distributions for numbers changing between
     ## compartments:
     n_SE[] <- rbinom(S[i], p_SE[i])
@@ -74,22 +93,22 @@ run_ode <- function(R_eff = 1, gamma_in=1/10, delta_in = 1/6, s_in, e_in, i_in,r
                   transmission = tranmission_increase,
                   vax_rate = vax_rate_in)
 
-  x_res <- x$run(0:150)
+  x_res <- x$run(0:horizon)
 
-  x_res <- as.data.table(x_res)
+  x_res <- data.table::as.data.table(x_res)
 
-  date_box <- data.table(time = 0:150,
-                         date =seq.Date(as.Date("2021-01-23"), by = "day",
-                                        length.out = 151))
+  date_box <- data.table::data.table(time = 0:horizon,
+                         date =seq.Date(as.Date(start_date), by = "day",
+                                        length.out = (horizon+1)))
 
   x_long <- melt(x_res, id.vars = c("step", "time"))
   x_long[,compartment := stringr::str_extract(variable, "[:alpha:]+")]
   x_long[,iteration := stringr::str_extract(variable, "[:digit:]+?")]
-  x_long[,id:=rep(1:100,times = 906)]
+  x_long[,id:=rep(1:100,times = nrow(date_box)*6)]
   x_long <- merge(x_long, date_box, by = "time", all.x = TRUE)
   x_syn <- dcast(x_long, formula = time + date + id~compartment , value.var = "value")
   x_syn <- x_syn[order(time)][,new_cases:=shift(S,n = 1)-S, by = "id"]
-  x_syn[,perc_S:= S/pop]
+  x_syn <- x_syn[,perc_S:= S/pop]
 
   list(x_syn = x_syn, x_long = x_long)
 }
