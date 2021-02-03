@@ -27,9 +27,9 @@ For correspondence: michael.dewitt@conehealth.com
 
 ## Abstract
 
-**Background:** Individual level data 
+**Background:** Several cases of the B1.1.7 variant of the SARS-CoV-2 were identified in North Carolina first on January 23, 2021 in Mecklenburg county and later in Guilford county on January 28, 2021 [@department_of_health_and_human_services_ncdhhs_2021; @noauthor_guilford_2021]. This strain has been associated with higher levels of tranmissibility [@public_health_investigation_2021; @imperial42; @davies2020]. This study examines the potential impact of increased tranmissibility as the B1.1.7 strain becomes more predominant given current vaccine distribution plans and the impact 
 
-**Method:** We explored 
+**Method:** We explored the anticipated impact on the effective reproduction number for North Carolina given the date of import. The approximate growth rate of B1.1.7 observed in the United Kingdom was fit and used to establish the estimate share of B1.1.7 in North Carolina. Using the nowcasted reproduction number, a stochastic discrete compartment model was fit with the current vaccination rates and B1.1.7 tranmissibility to estimate the impact on the effective reproduction number.
 
 **Results:** We found 
 
@@ -44,6 +44,10 @@ Data on S-gene target failure (SGTF) observed in the United Kingdom and made ava
 
 
 ## Statistical analysis
+
+In order to estimate the growth of B1.1.7, a hierarchical beta regression model was fit to data available from the analysis of @davies2020.
+
+
 
 
 # Results
