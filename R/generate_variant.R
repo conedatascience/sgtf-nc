@@ -45,6 +45,10 @@ summary(fit_new_variant)
 
 fitted_int <- fit_coef$estimate[fit_coef$term=="(Intercept)"]
 fitted_slope <- fit_coef$estimate[fit_coef$term=="t"]
+# (Intercept)
+# -4.648421
+# t
+# 0.07249007
 # simulating --------------------------------------------------------------
 
 days <- 365
