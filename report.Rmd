@@ -69,6 +69,27 @@ In order to estimate the growth of B1.1.7, a hierarchical beta regression model 
 
 ```
 
+
+```{r}
+r_reff_data%>%
+  filter(!is.na(Median)) %>%
+  mutate(variant = ifelse(transmission_increase==1.5, "With B1.1.7", "No B1.1.7")) %>%
+  ggplot(aes(date, Median, colour = as.factor(variant)))+
+  geom_line()+
+  geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "grey80", alpha = .2)+
+  geom_hline(yintercept = 1)+
+  labs(
+    title = "Evolution of Reproduction Number",
+    subtitle = "In North Carolina and Guilford County, Assumes 50% Transmissibility Increase",
+    colour = "Variant",
+    y = "Reproduction Number",
+    x = NULL
+  )+
+  theme_bw()+
+  theme(legend.position = "top")+
+  facet_wrap(~region)
+```
+
 # Discussion
 
 
