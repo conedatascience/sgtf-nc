@@ -31,19 +31,24 @@ infected_days <- 8
 infected_nc <- cases_raw[date==nc_introduction-incubation_offset]$daily_cases * infected_days
 infected_guilford <- cases_county_raw[date==nc_introduction-incubation_offset]$cases_daily * infected_days
 
+exposed_nc <- infected_nc *.5
+exposed_guilford <- infected_guilford *.5
 
+## vaccines
+vax_raw <- nccovid::get_vaccinations()
 
+vax_nc <- vax_raw[date<=nc_introduction-incubation_offset][date==max(date)][,sum(dose_1,na.rm=TRUE)]
+vax_guilford <- vax_raw[county=="Guilford"][date<=nc_introduction-incubation_offset][date==max(date)][,sum(dose_1,na.rm=TRUE)]
 
+vax_nc_rate <- round(150000/7)
+vax_guilford_rate <- round(4975/7)
 
+## R estimates
 
+reff_nc <- raw_rt[county=="North Carolina" & date==nc_introduction-incubation_offset]
+reff_guilford <- raw_rt[county=="Guilford" & date==guilford_introduction-incubation_offset]
 
-
-
-
-
-
-
-
+simulation_grid <-
 
 
 
