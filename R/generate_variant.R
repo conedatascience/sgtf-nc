@@ -67,10 +67,17 @@ first_detected <- as.Date("2021-01-29")
 
 first_import <- first_detected - 6
 
+detected_overlay <- data.frame(pred = pred,
+                               t = 1:days)
+readr::write_csv(fit_coef, here::here("output", "new-variant-coefficients.csv"))
+readr::write_csv(detected_overlay, here::here("output", "fitted-uk-variant.csv"))
+readr::write_csv(dat_2, here::here("data-raw", "uk-data.csv"))
+
 new_variant_impact <-data.frame(pred = pred,
                                 t = 1:days) %>%
   mutate(date = seq.Date(as.Date(first_import), by = "day", length.out = days)) %>%
   select(date, t, perc_variant = pred) %>%
   as.data.table() %>%
   .[,beta_multipler:=(1.5*perc_variant)+1*(1-perc_variant)]
+
 write_csv(new_variant_impact, here::here("data-raw", "new-variant.csv"))

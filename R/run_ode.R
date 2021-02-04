@@ -9,12 +9,12 @@
 #'@param r_in an integer, the number susceptible in the population at t =0
 #'@param r_vax_in an integer, the number susceptible in the population at t =0
 #'@param pop an integer, the number susceptible in the population at t =0
-#'@param tranmission_increase a double, the maximum increase in baseline tranmission
+#'@param transmission_increase a double, the maximum increase in baseline transmission
 #'@param vax_rate_in an integer, the number of persons vaccinated per day
 #'@param start_date a date string, the starting day
 #'@param horizon an integer, the number of days to simulate
 #'@param VE a double, between (0,1) representing vaccine efficiency
-#'@param gamma_in
+#'@param region a string, the name of the region of interest
 #'
 run_ode <- function(R_eff = 1,
                     delta_in = 1/6,
@@ -24,12 +24,13 @@ run_ode <- function(R_eff = 1,
                     i_in=1,
                     r_in=0,
                     r_vax_in=0,
-                    pop = s_in+e_in + i_in+ r_in+ r_vax,
-                    tranmission_increase=1,
+                    pop = s_in+e_in + i_in+ r_in+ r_vax_in,
+                    transmission_increase=1,
                     vax_rate_in=0,
                     start_date = "2021-01-23",
                     horizon = 150,
-                    VE = .95){
+                    VE = .95,
+                    region){
   require(data.table)
   odin_model <- odin::odin({
     ## Core equations for transitions between compartments:
@@ -74,6 +75,7 @@ run_ode <- function(R_eff = 1,
     gamma <- user(0.1)
     delta <- user(.3)
     vax_rate <- user(0)
+    VE <- user(.95)
     transmission <- user(1.5)
 
     ## Number of replicates
@@ -93,7 +95,8 @@ run_ode <- function(R_eff = 1,
     initial(time) <- 0
   }, verbose = FALSE)
 
-  beta_in <- R_eff/(s_in/pop)*gamma_in
+  beta_in <- as.numeric(R_eff/(s_in/pop)*gamma_in)
+  print(beta_in)
   x <- odin_model(S_ini = s_in,
                   E_ini = e_in,
                   I_ini = i_in,
@@ -102,8 +105,9 @@ run_ode <- function(R_eff = 1,
                   beta = beta_in,
                   delta = delta_in,
                   gamma = gamma_in,
-                  transmission = tranmission_increase,
-                  vax_rate = vax_rate_in)
+                  transmission = transmission_increase,
+                  vax_rate = vax_rate_in,
+                  VE= VE)
 
   x_res <- x$run(0:horizon)
 
@@ -125,5 +129,12 @@ run_ode <- function(R_eff = 1,
   summary_data <- copy(x_syn)[,.(reff_evolution = mean(Reff),
                  cases = mean(new_cases)), by = "date"]
 
-  list(x_syn = x_syn, x_long = x_long, summary_data = summary_data)
-}
+  summary_data$region <- region
+
+  summary_data$transmission_increase <- transmission_increase
+  summary_data$R_eff_in <- R_eff
+
+  out <- list(x_syn = x_syn, x_long = x_long, summary_data = summary_data)
+
+  return(out)
+  }

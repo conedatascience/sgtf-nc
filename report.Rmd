@@ -11,16 +11,19 @@ output:
 ---
 
 ```{r setup, echo = FALSE, cache = FALSE, include = FALSE}
-
+library(tidyverse)
+library(data.table)
 knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 ```
 
 ```{r load-data}
-
+dat_raw <- readr::read_rds(here::here("output", "simulated-evolutions.rds"))
+variant_growth <- readr::read_csv()
 ```
 
 ```{r effects}
-
+r_reff_data <- dat_raw[["combined_wide_reff"]] %>% 
+  filter(date != as.Date("2021-01-21"))
 ```
 
 For correspondence: michael.dewitt@conehealth.com

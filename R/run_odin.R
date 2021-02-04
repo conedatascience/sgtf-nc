@@ -33,14 +33,14 @@ odin_model <- odin::odin({
 
   initial(Reff[]) <- beta/gamma
 
-  transmission_multiplier <- transmission*exp(-exp(-(-4.648421 +0.07249007 *time)))+(1-exp(-exp(-(-4.648421 +0.07249007 *time))))
+  transmission_multiplier <- transmission*1/(1 + exp(-(-4.648421 +0.07249007 *time)))+(1-1/(1 + exp(-(-4.648421 +0.07249007 *time))))
   ## User defined parameters - default in parentheses:
   S_ini <- user(1000)
   E_ini <- user(2)
   I_ini <- user(1)
   R_ini <- user(0)
   R_vax_ini <- user(0)
-  R_eff <- user(1)
+  Reff <- user(1)
   beta <- user(0.2)
   gamma <- user(0.1)
   delta <- user(.3)
