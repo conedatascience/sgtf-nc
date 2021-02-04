@@ -1,7 +1,19 @@
 #' Run Stochastic SEIR Model + Vaccinations with Variant Effect
 #'
 #'@param R_eff a double, >0, the effective reproduction number
-#'@param delta_in a double, the
+#'@param delta_in a double, the residence rate days-1 in exposed compartment
+#'@param gamma_in a double, the inverse recovery time (days-1)
+#'@param s_in an integer, the number susceptible in the population at t =0
+#'@param e_in an integer, the number susceptible in the population at t =0
+#'@param i_in an integer, the number susceptible in the population at t =0
+#'@param r_in an integer, the number susceptible in the population at t =0
+#'@param r_vax_in an integer, the number susceptible in the population at t =0
+#'@param pop an integer, the number susceptible in the population at t =0
+#'@param tranmission_increase a double, the maximum increase in baseline tranmission
+#'@param vax_rate_in an integer, the number of persons vaccinated per day
+#'@param start_date a date string, the starting day
+#'@param horizon an integer, the number of days to simulate
+#'@param VE a double, between (0,1) representing vaccine efficiency
 #'@param gamma_in
 #'
 run_ode <- function(R_eff = 1,
@@ -79,7 +91,7 @@ run_ode <- function(R_eff = 1,
     dim(n_IR) <- nsim
     update(time) <- time + 1
     initial(time) <- 0
-  })
+  }, verbose = FALSE)
 
   beta_in <- R_eff/(s_in/pop)*gamma_in
   x <- odin_model(S_ini = s_in,
@@ -110,5 +122,8 @@ run_ode <- function(R_eff = 1,
   x_syn <- x_syn[order(time)][,new_cases:=shift(S,n = 1)-S, by = "id"]
   x_syn <- x_syn[,perc_S:= S/pop]
 
-  list(x_syn = x_syn, x_long = x_long)
+  summary_data <- copy(x_syn)[,.(reff_evolution = mean(Reff),
+                 cases = mean(new_cases)), by = "date"]
+
+  list(x_syn = x_syn, x_long = x_long, summary_data = summary_data)
 }
