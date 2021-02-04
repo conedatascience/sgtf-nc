@@ -18,7 +18,9 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 
 ```{r load-data}
 dat_raw <- readr::read_rds(here::here("output", "simulated-evolutions.rds"))
-variant_growth <- readr::read_csv()
+variant_growth <- readr::read_csv(here::here("data-raw", "uk-data.csv"))
+fitted_variant <- readr::read_rds(here::here("output", "fitted-uk-variant.csv"))
+coefficient_fit <- readr::read_csv(here::here("output", "new-variant-coefficients.csv"))
 ```
 
 ```{r effects}
@@ -30,9 +32,9 @@ For correspondence: michael.dewitt@conehealth.com
 
 ## Abstract
 
-**Background:** Several cases of the B1.1.7 variant of the SARS-CoV-2 were identified in North Carolina first on January 23, 2021 in Mecklenburg county and later in Guilford county on January 28, 2021 [@department_of_health_and_human_services_ncdhhs_2021; @noauthor_guilford_2021]. This strain has been associated with higher levels of tranmissibility [@public_health_investigation_2021; @imperial42; @davies2020]. This study examines the potential impact of increased tranmissibility as the B1.1.7 strain becomes more predominant given current vaccine distribution plans and the impact 
+**Background:** Several cases of the B1.1.7 variant of the SARS-CoV-2 were identified in North Carolina first on January 23, 2021 in Mecklenburg county and later in Guilford county on January 28, 2021 [@department_of_health_and_human_services_ncdhhs_2021; @noauthor_guilford_2021]. This strain has been associated with higher levels of transmissibility [@public_health_investigation_2021; @imperial42; @davies2020]. This study examines the potential impact of increased transmissibility as the B1.1.7 strain becomes more predominant given current vaccine distribution plans and the impact 
 
-**Method:** We explored the anticipated impact on the effective reproduction number for North Carolina given the date of import. The approximate growth rate of B1.1.7 observed in the United Kingdom was fit and used to establish the estimate share of B1.1.7 in North Carolina. Using the nowcasted reproduction number, a stochastic discrete compartment model was fit with the current vaccination rates and B1.1.7 tranmissibility to estimate the impact on the effective reproduction number.
+**Method:** We explored the anticipated impact on the effective reproduction number for North Carolina given the date of import. The approximate growth rate of B1.1.7 observed in the United Kingdom was fit and used to establish the estimate share of B1.1.7 in North Carolina. Using the nowcasted reproduction number, a stochastic discrete compartment model was fit with the current vaccination rates and B1.1.7 transmissibility to estimate the impact on the effective reproduction number.
 
 **Results:** We found 
 
