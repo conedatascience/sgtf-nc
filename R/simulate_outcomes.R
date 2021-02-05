@@ -40,8 +40,8 @@ vax_raw <- nccovid::get_vaccinations()
 vax_nc <- vax_raw[date<=nc_introduction-incubation_offset][date==max(date)][,sum(dose_1,na.rm=TRUE)]
 vax_guilford <- vax_raw[county=="Guilford"][date<=nc_introduction-incubation_offset][date==max(date)][,sum(dose_1,na.rm=TRUE)]
 
-vax_nc_rate <- round(150000/7)
-vax_guilford_rate <- round(4975/7)
+vax_nc_rate <- round(147575/7) # Week of Feb 2 state total dose 1 allotments
+vax_guilford_rate <- round(5775/7) # Week of Feb 2 dose 1 allotsments, no mass
 
 ## R estimates
 
