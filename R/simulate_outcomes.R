@@ -6,7 +6,9 @@ source("R/run_ode.R")
 
 # pull base data ----------------------------------------------------------
 
-raw_rt <- data.table::fread(here::here("data-raw", "rt-raw.csv"))
+raw_rt <- data.table::fread(here::here("data-raw", "rt-raw.csv")) %>%
+  mutate_if(is.numeric, round, digits = 2) %>%
+  as.data.table()
 
 ## Population
 pop_nc <- nccovid::nc_population$july_2020[nccovid::nc_population$county=="STATE"]
@@ -122,3 +124,22 @@ write_rds(list(guilford_sim= guilford_sim,
 #   theme_minimal()+
 #   facet_wrap(~region)
 
+simulation_input_data <- tibble::tibble(
+  "Region" = c("North Carolina", "Guilford"),
+  "Import Date"= c(nc_introduction, guilford_introduction),
+  "Reproduction Number"= c(paste0(reff_nc$median, "(",reff_nc$bottom, "-",reff_nc$top,")"),
+                           paste0(reff_guilford$median, "(",reff_guilford$bottom, "-",reff_guilford$top,")")),
+  "Population"= c(pop_nc, pop_guilford),
+  "Susceptible"= c( nc_s, guilford_s),
+  "Exposed"= c( exposed_nc, exposed_guilford),
+  "Infected"= c( infected_nc, infected_guilford),
+  "Recovered (Natural Immunity)"= c(recovered_nc, recovered_guilford),
+  "Vaccinated" = c(vax_nc, vax_guilford),
+  "Vaccination Rate (Doses per Day)" = c(vax_nc_rate, vax_guilford_rate),
+  "Vaccine Efficiency" = c("95%", "95%"),
+  "Vaccine Uptake" = c("100%", "100%"),
+  "Variant Transmissibility Increase" = c("50%","50%"),
+  "Incubation (days)" = c(6, 6),
+  "Recovery (days)" = c(10,10)
+)
+write_csv(simulation_input_data, here::here("output", "simulation-data-parameters.csv"))
