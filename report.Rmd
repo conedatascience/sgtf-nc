@@ -23,6 +23,7 @@ dat_raw <- readr::read_rds(here::here("output", "simulated-evolutions.rds"))
 variant_growth <- readr::read_csv(here::here("data-raw", "uk-data.csv"))
 fitted_variant <- readr::read_csv(here::here("output", "fitted-uk-variant.csv"))
 coefficient_fit <- readr::read_csv(here::here("output", "new-variant-coefficients.csv"))
+model_params <- readr::read_csv(here::here("output", "simulation-data-parameters.csv"))
 ```
 
 ```{r effects}
@@ -49,12 +50,33 @@ For correspondence: michael.dewitt@conehealth.com
 This analysis considered effective reproduction number data generated for the state of North Carolina using the @epinow2 R package following the methods specified by @rtwebsite.
 Data on S-gene target failure (SGTF) observed in the United Kingdom and made available in the analysis @davies2020 were used in order to estimate proportion of anticipated B1.1.7 variant circulating.
 
+@cevik_virology_2020
+
 
 ## Statistical analysis
 
-In order to estimate the growth of B1.1.7, a hierarchical beta regression model was fit to data available from the analysis of @davies2020.
+In order to estimate the growth of B1.1.7, a hierarchical beta regression model was fit to data available from the analysis of Davies @davies2020.
+These data were then used to estimate tranmissibility multiplier for day t, $\phi_t$, on the base contact rate given the days after the introduction of the new variant.
+
+A stochastic discrete compartmental model was then used to simulate the effect of vaccinations and circulation of B1.1.7 on the effective reproduction number. 
+Using case data and including multiplers to account for underascertainment of infections, the compartmental model included compartments for susceptible, exposed, infected, and removed persons in the population. 
 
 
+$$
+S_{t+1} = S_t - \beta \phi_{t}\frac{S_t I_t}{N_t} \\ 
+$$
+
+$$
+E_{t+1} = E_t + \beta\phi_{t} \frac{S_t I_t}{N_t} - \delta E_t - Vaccinated_{t} \\
+$$
+
+$$
+I_{t+1} = I_t + \delta E_t - \gamma I_t \\
+$$
+
+$$
+R_{t+1} = R_t + \gamma I_t + Vaccinated_{t}
+$$
 
 
 # Results
@@ -82,7 +104,15 @@ variant_growth %>%
 
 
 ```{r effects-tab, results = "asis"} 
-
+model_params %>% 
+  mutate(`Import Date` = as.character(`Import Date`)) %>% 
+  mutate_if(is.numeric, scales::comma) %>% 
+  gather(metric, value, -Region) %>% 
+  spread(Region, value) %>% 
+  mutate(metric = factor(metric, names(model_params))) %>% 
+  arrange(metric) %>% 
+  knitr::kable(col.names = c("Parameter", "Guilford County", "North Carolina"),caption = "Parameters used in Discrete Stochastic Compartmental Model") %>% 
+  kableExtra::kable_styling()
 ```
 
 
