@@ -66,7 +66,7 @@ simulation_grid_nc <-data.frame(region = "North Carolina",
                              VE = .95,
                              start_date  = nc_introduction - incubation_offset) %>%
   crossing(R_eff = c(reff_nc$bottom, reff_nc$median, reff_nc$top),
-           transmission_increase = c(1,1.5))
+           transmission_increase = c(1,1.5, 1.8))
 
 simulation_grid_guilford <-data.frame(region = "Guilford",
                                 s_in = guilford_s,
@@ -77,7 +77,7 @@ simulation_grid_guilford <-data.frame(region = "Guilford",
                                 VE = .95,
                                 start_date  = guilford_introduction - incubation_offset) %>%
   crossing(R_eff = c(reff_nc$bottom, reff_nc$median, reff_nc$top),
-           transmission_increase = c(1,1.5))
+           transmission_increase = c(1,1.5, 1.8))
 
 
 guilford_sim <- pmap(simulation_grid_guilford, run_ode)
@@ -111,18 +111,19 @@ write_rds(list(guilford_sim= guilford_sim,
           here::here("output", "simulated-evolutions.rds"))
 
 
-# combined_wide_reff%>%
-#   filter(!is.na(Median)) %>%
-#   mutate(variant = ifelse(transmission_increase==1.5, "With B1.1.7", "No B1.1.7")) %>%
-#   ggplot(aes(date, Median, colour = as.factor(variant)))+
-#   geom_line()+
-#   geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "grey80", alpha = .2)+
-#   geom_hline(yintercept = 1)+
-#   labs(
-#     title = "Guilford County Reproduction Number"
-#   )+
-#   theme_minimal()+
-#   facet_wrap(~region)
+combined_wide_reff%>%
+  filter(!is.na(Median)) %>%
+  mutate(variant = ifelse(transmission_increase==1.5, "With B1.1.7 (50%)",
+                          ifelse(transmission_increase == 1.8, "With B1.1.7 (80%)", "No B1.1.7"))) %>%
+  ggplot(aes(date, Median, colour = as.factor(variant)))+
+  geom_line()+
+  geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "grey80", alpha = .2)+
+  geom_hline(yintercept = 1)+
+  labs(
+    title = "Guilford County Reproduction Number"
+  )+
+  theme_minimal()+
+  facet_wrap(~region)
 
 simulation_input_data <- tibble::tibble(
   "Region" = c("North Carolina", "Guilford"),
@@ -138,7 +139,7 @@ simulation_input_data <- tibble::tibble(
   "Vaccination Rate (Doses per Day)" = c(vax_nc_rate, vax_guilford_rate),
   "Vaccine Efficiency" = c("95%", "95%"),
   "Vaccine Uptake" = c("100%", "100%"),
-  "Variant Transmissibility Increase" = c("50%","50%"),
+  "Variant Transmissibility Increase" = c("0%, 50%, 80%","0%, 50%, 80%"),
   "Incubation (days)" = c(6, 6),
   "Recovery (days)" = c(10,10)
 )

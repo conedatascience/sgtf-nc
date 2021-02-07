@@ -1,8 +1,9 @@
 ---
 title: "Rapid Impact Analysis of B 1.1.7 Variant on the Spread of SARS-CoV-2 in North Carolina"
+subtitle: "Working Paper: Not Peer Reviewed"
 author: Michael DeWitt
 bibliography: references.bib
-date: 31 January, 2021
+date: '31 January, 2021 *Updated `r format(Sys.Date(), "%d %B, %Y")`*'
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa-numeric-superscript-brackets.csl
 header-includes:
    - \usepackage{float}
@@ -35,13 +36,13 @@ For correspondence: michael.dewitt@conehealth.com
 
 ## Abstract
 
-**Background:** Several cases of the B1.1.7 variant of the SARS-CoV-2 were identified in North Carolina first on January 23, 2021 in Mecklenburg county and later in Guilford county on January 28, 2021 [@department_of_health_and_human_services_ncdhhs_2021; @noauthor_guilford_2021]. This strain has been associated with higher levels of transmissibility [@public_health_investigation_2021; @imperial42; @davies2020]. This study examines the potential impact of increased transmissibility as the B1.1.7 strain becomes more predominant given current vaccine distribution plans and the impact 
+**Background:** Several cases of the B1.1.7 variant of the SARS-CoV-2 virus were identified in North Carolina first on January 23, 2021 in Mecklenburg County and later in Guilford County on January 28, 2021 [@department_of_health_and_human_services_ncdhhs_2021; @noauthor_guilford_2021]. This variant has been associated with higher levels of transmissibility [@public_health_investigation_2021; @imperial42; @davies2020; @davies_estimated_2021]. This study examines the potential impact of increased transmissibility as the B1.1.7 variant becomes more predominant given current vaccine distribution plans and existing non-pharmaceutical interventions (NPIs).
 
-**Method:** We explored the anticipated impact on the effective reproduction number for North Carolina given the date of import. The approximate growth rate of B1.1.7 observed in the United Kingdom was fit and used to establish the estimate share of B1.1.7 in North Carolina. Using the nowcasted reproduction number, a stochastic discrete compartment model was fit with the current vaccination rates and B1.1.7 transmissibility to estimate the impact on the effective reproduction number.
+**Method:** We explored the anticipated impact on the effective reproduction number for North Carolina and Guilford County given the date of import of B1.1.7. The approximate growth rate in proportion of B1.1.7 observed in the United Kingdom was fit and used to establish the estimate share of B1.1.7 circulating in North Carolina. Using the nowcasted reproduction numbers, a stochastic discrete compartmental model was fit with the current vaccination rates and B1.1.7 transmissibility to estimate the impact on the effective reproduction number.
 
-**Results:** We found 
+**Results:** We found that the effective reproduction number for North Carolina and Guilford County may exceed 1 in April as the proportion of B1.1.7 increases. The effective reproduction number will likely decrease into March, then increase as the proportion of B1.1.7 increases in circulation in the population. Depending on the observed increase in transmissibility, the reproduction number may increase above 1, indicating a return to accelerating spread of infection.
 
-**Conclusions:** Population level surveillance data supports 
+**Conclusions:** Existing non-pharmaceutical interventions will need to remain in effect through the spring. Given the current vaccination rate and these interventions, it is likely that there will be an increase in SARS-CoV-2 infections. The impact of the variant will likely be heterogeneous across North Carolina given the reproduction number and volume of susceptible persons in each county at the time of introduction of the variant. Age-based vaccinations will likely reduce the overall impact on hospitalizations. This analysis underlines the need for population level genetic surveillance to confirm the proportion of variants circulating.
 
 # Method
 
@@ -49,17 +50,19 @@ For correspondence: michael.dewitt@conehealth.com
 
 This analysis considered effective reproduction number data generated for the state of North Carolina using the @epinow2 R package following the methods specified by @rtwebsite.
 Data on S-gene target failure (SGTF) observed in the United Kingdom and made available in the analysis @davies2020 were used in order to estimate proportion of anticipated B1.1.7 variant circulating.
-
-@cevik_virology_2020
-
+Case rates were provided by the North Carolina Department of Health and Human Services and retrieved using the nccovid package [@nccovid].
 
 ## Statistical analysis
 
-In order to estimate the growth of B1.1.7, a hierarchical beta regression model was fit to data available from the analysis of Davies @davies2020.
-These data were then used to estimate tranmissibility multiplier for day t, $\phi_t$, on the base contact rate given the days after the introduction of the new variant.
+In order to estimate the growth in proportion of B1.1.7, a hierarchical beta regression model was fit to data available from the analysis of Davies @davies2020 representing the proportion of SGTF cases out of cases tested using a specific testing platform within seven NHS England regions.
+In this model, the outcome variable was the proportion of SGTF given the number of days after introduction.
+The NHS England region was used as a group level intercept, fit using the RStanArm R package[@rstanarm].
+These data were then used to estimate transmissibility multiplier for day t, $\phi_t$, on the base contact rate given the days after the introduction of the new variant.
+The transmissibility multiplier represents the weighted average increase in transmission given a fixed contact rate, $\beta$.
 
 A stochastic discrete compartmental model was then used to simulate the effect of vaccinations and circulation of B1.1.7 on the effective reproduction number. 
-Using case data and including multiplers to account for underascertainment of infections, the compartmental model included compartments for susceptible, exposed, infected, and removed persons in the population. 
+Using case data and including multipliers to account for under-ascertainment of infections, the model included compartments for susceptible, exposed, infected, and removed^[Where "removed" could be through recovery, death, or vaccination.] persons in the population as shown in the below equations. It is assumed that immunity is permanent for the course of the simulation.
+The models were fit using the Odin R package [@odin] and each simulation was run 100 times.
 
 
 $$
@@ -79,8 +82,32 @@ R_{t+1} = R_t + \gamma I_t + Vaccinated_{t}
 $$
 
 
+Nine scenarios were evaluated for North Carolina and Guilford County.
+These scenarios included the 10%, 50%, and 90% quantile estimates for the effective reproduction number on the incubation time adjusted import date of B1.1.7 estimated using the EpiNow2 package [@cevik_virology_2020, @epinow2; @ganyani]. 
+The increase in transmissibility was modeled as 0% reflecting no increase, 50% increase, and 80% increase [@davies2020;  @imperial42; @galloway_emergence_2021]. 
+Based on the latest findings from Davies, the increase in transmissibility could be as high as 82% with the 95% credible interval including 106% [@davies_estimated_2021].
+
+The scenarios are shown in Table 1.
+
+```{r effects-tab, results = "asis"} 
+model_params %>% 
+  mutate(`Import Date` = as.character(`Import Date`)) %>% 
+  mutate_if(is.numeric, scales::comma) %>% 
+  gather(metric, value, -Region) %>% 
+  spread(Region, value) %>% 
+  mutate(metric = factor(metric, names(model_params))) %>% 
+  arrange(metric) %>% 
+  knitr::kable(col.names = c("Parameter", "Guilford County", "North Carolina"),caption = "Parameters used in Discrete Stochastic Compartmental Model") %>% 
+  kableExtra::kable_styling()
+```
+
+All analysis was conducted in the R Statistical Computing Environment [@baser] and is available at <https://github.com/conedatascience/sgtf-nc>.
+
 # Results
 
+Figure 1 represents the observed proportion of SGTF in the NHS England regions.
+Additionally, the fitted curve from the beta regression is displayed as a dashed line.
+This fitted curve was used to estimate the proportion of SGTF in the compartmental models given the introduction date.
 
 
 ```{r variantevolution, echo=FALSE, fig.width=10, fig.height=10, fig.cap = "Estimates of SGTF Evolution Used as Proxy for B1.1.7 Share of SARS-CoV-2 Variants in Circulation"}
@@ -103,30 +130,21 @@ variant_growth %>%
 
 
 
-```{r effects-tab, results = "asis"} 
-model_params %>% 
-  mutate(`Import Date` = as.character(`Import Date`)) %>% 
-  mutate_if(is.numeric, scales::comma) %>% 
-  gather(metric, value, -Region) %>% 
-  spread(Region, value) %>% 
-  mutate(metric = factor(metric, names(model_params))) %>% 
-  arrange(metric) %>% 
-  knitr::kable(col.names = c("Parameter", "Guilford County", "North Carolina"),caption = "Parameters used in Discrete Stochastic Compartmental Model") %>% 
-  kableExtra::kable_styling()
-```
+Figure 2 shows the evolution in the effective reproduction number in North Carolina and Guilford County.
 
 
 ```{r echo=FALSE, fig.width=10, fig.height=10, fig.cap = "Estimates of Reproduction Number Evolution in North Carolina and Guilford County Shows Heteogenity"}
 r_reff_data%>%
-  filter(!is.na(Median)) %>%
-  mutate(variant = ifelse(transmission_increase==1.5, "With B1.1.7", "No B1.1.7")) %>%
+  filter(!is.na(Median)& date!="2021-01-16") %>%
+  mutate(variant = ifelse(transmission_increase==1.5, "With B1.1.7 (50%)",
+                          ifelse(transmission_increase == 1.8, "With B1.1.7 (80%)", "No B1.1.7"))) %>%
   ggplot(aes(date, Median, colour = as.factor(variant)))+
   geom_line()+
   geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "grey80", alpha = .2)+
   geom_hline(yintercept = 1)+
   labs(
     title = "Evolution of Reproduction Number",
-    subtitle = "In North Carolina and Guilford County, Assumes 50% Transmissibility Increase",
+    subtitle = "In North Carolina and Guilford County, Assumes 50% Transmissibility Increase for SGTF Variant",
     colour = "Variant",
     y = "Reproduction Number",
     x = NULL
@@ -139,6 +157,26 @@ r_reff_data%>%
 
 # Discussion
 
+These models demonstrate the potential heterogeneity in impact of the new variant across the state of North Carolina and the importance of the effective reproduction number at the time of introduction of B1.1.7.
+Both models indicate that if B1.1.7 results in a 50% increase in transmissibility and overtakes existing wild type variants as observed in England, the effective reproduction number may exceed 1, indicating a return to exponential spread in April of 2021.
+A similar trend would be observed if the increase in transmissibility is as high as 80%.
+This underlines the importance of accelerating vaccinations across North Carolina.
+Additionally, this analysis is in the context of existing mobility and occupancy restrictions, indicating that these interventions should remain in effect through the spring.
+
+Importantly, the trajectory for the effective reproduction number will be similar in both regions with and without the variant until March, showing a decrease in the effective reproduction number over the short term.
+This will be observed in lower incidences of cases.
+However, as B1.1.7 becomes the dominant variant, the effective reproduction number will likely start to increase. 
+Without rigorous sampling of SARS-CoV-2 infections for genetic sequencing, the proportion of B1.1.7 circulating is unknown.
+Thus we will not be able to confirm the above analysis until March when the reproduction begins to increase.
+
+
+This analysis assumes homogeneous mixing in the populations modeled and does not consider differences in contact patterns amongst different age groups.
+Vaccination uptake is assumed to be 100% over the short term, though as time progresses it may be harder to distribute doses to hard to reach or vaccine hesitant populations.
+This does not consider the introduction of new vaccine programs, which should increase available supply of vaccine (though at the time of writing only two vaccines have EUA approval from the United States Food and Drug Administration).
+Similarly, it is estimated the vaccination programs that favor the elderly could have an out-sized impact on the hospitalization rate [@verity_estimates_2020; @davies_age_dependent_2020].
+Additionally, the analysis considers neither the impact of seasonality as this is still an open question, nor the impact of major holiday gatherings like Passover and Easter [@neher_potential_2020].
+It is assumed that existing restrictions on mobility and the requirement for facemasks in public places remains the same [@brauner_inferring_2020].
+The circulation of other new and emerging variants is not considered.
 
 # References
 
