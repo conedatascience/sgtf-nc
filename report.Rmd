@@ -14,7 +14,7 @@ output:
 ```{r setup, echo = FALSE, cache = FALSE, include = FALSE}
 library(tidyverse)
 library(data.table)
-library(scico)
+library(ggsci)
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 theme_set(theme_bw())
 ```
@@ -61,7 +61,7 @@ These data were then used to estimate transmissibility multiplier for day t, $\p
 The transmissibility multiplier represents the weighted average increase in transmission given a fixed contact rate, $\beta$.
 
 A stochastic discrete compartmental model was then used to simulate the effect of vaccinations and circulation of B1.1.7 on the effective reproduction number. 
-Using case data and including multipliers to account for under-ascertainment of infections, the model included compartments for susceptible, exposed, infected, and removed^[Where "removed" could be through recovery, death, or vaccination.] persons in the population as shown in the below equations. It is assumed that immunity is permanent for the course of the simulation.
+Using case data and including multipliers to account for under-ascertainment of infections, the model included compartments for susceptible, exposed, infected, and removed persons in the population as shown in the below equations. "Removed" death or immunity achieved through recovery or vaccination.  It is assumed that immunity is permanent for the course of the simulation.
 The models were fit using the Odin R package [@odin] and each simulation was run 100 times.
 
 
@@ -125,7 +125,7 @@ variant_growth %>%
   scale_x_continuous(name = "Days After Introduction", limits = c(0,110))+
   theme(legend.position = "top")+
   geom_label(data = filter(fitted_variant, t == 110), aes(t, pred, label = "Estimate"), inherit.aes = FALSE)+
-  scale_colour_scico_d(palette = "berlin")
+  ggsci::scale_color_lancet()
 ```
 
 
@@ -144,7 +144,7 @@ r_reff_data%>%
   geom_hline(yintercept = 1)+
   labs(
     title = "Evolution of Reproduction Number",
-    subtitle = "In North Carolina and Guilford County, Assumes 50% Transmissibility Increase for SGTF Variant",
+    subtitle = "In North Carolina and Guilford County at 50% and 80% Transmissibility Increase for SGTF Variant",
     colour = "Variant",
     y = "Reproduction Number",
     x = NULL
@@ -152,7 +152,7 @@ r_reff_data%>%
   theme_bw()+
   theme(legend.position = "top")+
   facet_wrap(~region)+
-  scale_colour_scico_d(palette = "berlin")
+  ggsci::scale_color_lancet()
 ```
 
 # Discussion
